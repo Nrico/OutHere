@@ -8,17 +8,27 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            SpotMapView(spots: viewModel.spots, selectedSpot: $viewModel.selectedSpot)
+            SpotMapView(spots: viewModel.filteredSpots, selectedSpot: $viewModel.selectedSpot)
                 .edgesIgnoringSafeArea(.all)
 
-            HStack {
-                SearchBar(text: $query)
-                Button(action: { showFilters.toggle() }) {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                        .font(.title2)
+            VStack {
+                HStack {
+                    SearchBar(text: $query)
+                    Button(action: { showFilters.toggle() }) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.title2)
+                    }
                 }
+                .padding()
+
+                Spacer()
+
+                Toggle("Afternoon Only", isOn: $viewModel.afternoonOnly)
+                    .padding(8)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(10)
+                    .padding()
             }
-            .padding()
         }
         .sheet(item: $viewModel.selectedSpot) { spot in
             SpotDetailCard(spot: spot)

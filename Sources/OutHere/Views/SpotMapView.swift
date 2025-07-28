@@ -2,8 +2,8 @@ import SwiftUI
 import MapKit
 
 struct SpotMapView: View {
-    var spots: [Spot]
-    @Binding var selectedSpot: Spot?
+    var spots: [SpotLocation]
+    @Binding var selectedSpot: SpotLocation?
 
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
@@ -13,7 +13,7 @@ struct SpotMapView: View {
     var body: some View {
         Map(coordinateRegion: $region, annotationItems: spots) { spot in
             MapAnnotation(coordinate: spot.coordinate) {
-                SpotAnnotationView(activity: spot.activity)
+                SpotAnnotationView(level: spot.activityLevel)
                     .onTapGesture {
                         selectedSpot = spot
                     }
@@ -23,6 +23,6 @@ struct SpotMapView: View {
 }
 
 #Preview {
-    SpotMapView(spots: Spot.mockData, selectedSpot: .constant(nil))
+    SpotMapView(spots: SpotLocation.mockData, selectedSpot: .constant(nil))
         .environmentObject(SpotViewModel())
 }

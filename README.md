@@ -11,3 +11,8 @@ This project is a Swift Package so that it can be opened in Xcode and built for 
 - Sliding translucent card with spot information and quick actions
 
 The app uses a simple MVVM structure and contains only local test data. It is intended as a lightweight prototype without external dependencies.
+
+## Updates
+- New `SpotLocation` model with activity levels
+- Animated glow overlays scale with activity level on the map
+- Toggle to filter spots active in the afternoon

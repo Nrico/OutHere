@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SpotDetailCard: View {
-    var spot: Spot
+    var spot: SpotLocation
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -14,9 +14,6 @@ struct SpotDetailCard: View {
             Text(spot.name)
                 .font(.title2)
                 .bold()
-
-            Text(spot.description)
-                .font(.body)
 
             HStack {
                 ForEach(spot.tags, id: \.self) { tag in

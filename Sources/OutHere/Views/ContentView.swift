@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var showOnboarding = false
     @State private var showFollowed = false
     @State private var showEvents = false
+    @State private var showStandBy = false
     @State private var softNotice: String?
 
     var body: some View {
@@ -88,6 +89,11 @@ struct ContentView: View {
                 .environmentObject(viewModel)
                 .environmentObject(profile)
         }
+        .fullScreenCover(isPresented: $showStandBy) {
+            StandByView()
+                .environmentObject(viewModel)
+                .environmentObject(profile)
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: { showEvents = true }) {
@@ -105,6 +111,9 @@ struct ContentView: View {
                             .frame(width: 8, height: 8)
                     }
                 }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Test StandBy View") { showStandBy = true }
             }
         }
         .onAppear {

@@ -17,3 +17,4 @@ The app uses a simple MVVM structure and contains only local test data. It is in
 - Animated glow overlays scale with activity level on the map
 - Toggle to filter spots active in the afternoon
 - Soft connection modal surfaces nearby users with shared tags
+- Experimental StandBy view showing glowing activity at followed spots

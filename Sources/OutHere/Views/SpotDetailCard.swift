@@ -84,7 +84,7 @@ struct SpotDetailCard: View {
             return
         }
 
-        viewModel.checkIn(at: spot, mode: presenceMode, safety: safety)
+        viewModel.checkIn(at: spot, mode: presenceMode, safety: safety, profile: profile)
 
         if let ctx = viewModel.connectionContext(for: spot, profile: profile) {
             connectionContext = ctx

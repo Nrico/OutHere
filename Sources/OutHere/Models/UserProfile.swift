@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Combine
 
 enum ConnectionFrequency: String, CaseIterable, Identifiable {
     case low, normal, high
@@ -24,11 +25,16 @@ final class UserProfile: ObservableObject {
     @Published var followedSpots: Set<SpotLocation.ID> = [] {
         didSet { saveFollowed() }
     }
+    @Published var userID: String = ""
 
     init() {
         if let ids = try? JSONDecoder().decode([UUID].self, from: storedFollowed) {
             followedSpots = Set(ids)
         }
+        userID = FirebaseService.shared.userID
+        FirebaseService.shared.$userID
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$userID)
     }
 
     private func saveFollowed() {

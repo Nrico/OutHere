@@ -30,8 +30,9 @@ final class SpotViewModel: ObservableObject {
         return min(base + additional, 5)
     }
 
-    func checkIn(at spot: SpotLocation, mode: UserPresence) {
+    func checkIn(at spot: SpotLocation, mode: UserPresence, safety: SafetyViewModel? = nil) {
         guard mode != .invisible else { return }
+        if safety?.isWithinSafeHours() == true { return }
         presenceCounts[spot.id, default: 0] += 1
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 600) { [weak self] in

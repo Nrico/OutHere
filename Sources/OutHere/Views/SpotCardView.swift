@@ -4,8 +4,10 @@ struct SpotCardView: View {
     var spot: SpotLocation
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
+    @EnvironmentObject var safety: SafetyViewModel
     @State private var toast: String?
     @State private var showEventDetail = false
+    @State private var showSafety = false
 
     private var spotEvent: SpotEvent? {
         viewModel.events.first { $0.spotID == spot.id }
@@ -42,6 +44,8 @@ struct SpotCardView: View {
                     toggleFollow()
                 }
                 .buttonStyle(.bordered)
+                Button("Safety Options") { showSafety = true }
+                    .buttonStyle(.bordered)
             }
             if let event = spotEvent {
                 Divider()
@@ -67,6 +71,10 @@ struct SpotCardView: View {
             if let event = spotEvent {
                 SpotEventDetailView(event: event)
             }
+        }
+        .sheet(isPresented: $showSafety) {
+            SafetyOptionsView(id: spot.id, name: "spot")
+                .environmentObject(safety)
         }
     }
 

@@ -12,6 +12,7 @@ struct SpotMapView: View {
     @Binding var selectedSpot: SpotLocation?
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
+    @EnvironmentObject var safety: SafetyViewModel
 
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
@@ -25,11 +26,11 @@ struct SpotMapView: View {
     private var displayedSpots: [SpotLocation] {
         switch mode {
         case .all:
-            return spots
+            return spots.filter { !safety.isBlocked($0.id) }
         case .matched:
-            return spots.filter(matches)
+            return spots.filter(matches).filter { !safety.isBlocked($0.id) }
         case .followed:
-            return spots.filter { profile.followedSpots.contains($0.id) }
+            return spots.filter { profile.followedSpots.contains($0.id) && !safety.isBlocked($0.id) }
         }
     }
 
@@ -38,11 +39,17 @@ struct SpotMapView: View {
             MapAnnotation(coordinate: spot.coordinate) {
                 SpotAnnotationView(
                     level: viewModel.activityLevel(for: spot),
-                    dimmed: mode == .all && !matches(spot),
+                    dimmed: (mode == .all && !matches(spot)) || safety.isMuted(spot.id),
                     matched: matches(spot)
                 )
                 .onTapGesture {
                     selectedSpot = spot
+                }
+                .overlay(alignment: .topTrailing) {
+                    if safety.reportCounts[spot.id, default: 0] >= 3 {
+                        Text("⚠️")
+                            .font(.caption)
+                    }
                 }
             }
         }

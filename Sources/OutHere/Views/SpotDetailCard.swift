@@ -4,6 +4,7 @@ struct SpotDetailCard: View {
     var spot: SpotLocation
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
+    @EnvironmentObject var safety: SafetyViewModel
 
     @Binding var presenceMode: UserPresence
     @State private var toastMessage: String?
@@ -78,7 +79,12 @@ struct SpotDetailCard: View {
             return
         }
 
-        viewModel.checkIn(at: spot, mode: presenceMode)
+        if safety.isWithinSafeHours() {
+            showToast("Presence sharing paused during safe hours")
+            return
+        }
+
+        viewModel.checkIn(at: spot, mode: presenceMode, safety: safety)
 
         if let ctx = viewModel.connectionContext(for: spot, profile: profile) {
             connectionContext = ctx

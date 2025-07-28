@@ -7,6 +7,10 @@ struct OnboardingView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Text("Please respect others and keep content safe for everyone.")
+                        .font(.footnote)
+                }
                 Section(header: Text("Basics")) {
                     TextField("Nickname", text: $profile.nickname)
                     TextField("Pronouns", text: $profile.pronouns)

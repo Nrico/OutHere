@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var mapMode: MapDisplayMode = .all
     @State private var showProfile = false
     @State private var showOnboarding = false
+    @State private var showFollowed = false
     @State private var softNotice: String?
 
     var body: some View {
@@ -76,7 +77,29 @@ struct ContentView: View {
             OnboardingView()
                 .environmentObject(profile)
         }
-        .onAppear { simulateActivityNotification() }
+        .sheet(isPresented: $showFollowed) {
+            NavigationStack { FollowedSpotsView() }
+                .environmentObject(viewModel)
+                .environmentObject(profile)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showFollowed = true }) {
+                    Image(systemName: "bell")
+                }
+                .overlay(alignment: .topTrailing) {
+                    if viewModel.hasActiveFollowedSpots(profile.followedSpots) {
+                        Circle()
+                            .fill(Color.red)
+                            .frame(width: 8, height: 8)
+                    }
+                }
+            }
+        }
+        .onAppear {
+            simulateActivityNotification()
+            viewModel.startMockActivity(followed: { profile.followedSpots })
+        }
     }
 
     private func simulateActivityNotification() {

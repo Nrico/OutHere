@@ -98,8 +98,10 @@ struct SpotDetailCard: View {
     private func toggleFollow() {
         if profile.followedSpots.contains(spot.id) {
             profile.followedSpots.remove(spot.id)
+            showToast("Unfollowed")
         } else {
             profile.followedSpots.insert(spot.id)
+            showToast("Followed")
         }
     }
 }

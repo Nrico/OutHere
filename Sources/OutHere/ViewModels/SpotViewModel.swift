@@ -3,6 +3,7 @@ import MapKit
 
 final class SpotViewModel: ObservableObject {
     @Published var spots: [SpotLocation] = SpotLocation.mockData
+    @Published var events: [SpotEvent] = SpotEvent.mockData
     @Published var selectedSpot: SpotLocation?
     @Published var afternoonOnly: Bool = false
 

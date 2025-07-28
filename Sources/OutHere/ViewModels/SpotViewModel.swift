@@ -8,6 +8,8 @@ final class SpotViewModel: ObservableObject {
 
     // Presence count per spot id
     @Published private(set) var presenceCounts: [SpotLocation.ID: Int] = [:]
+    @Published var activeSpots: Set<SpotLocation.ID> = []
+    private var activityTimer: Timer?
 
     var filteredSpots: [SpotLocation] {
         if afternoonOnly {
@@ -31,5 +33,28 @@ final class SpotViewModel: ObservableObject {
             let current = self.presenceCounts[spot.id, default: 0]
             self.presenceCounts[spot.id] = max(current - 1, 0)
         }
+    }
+
+    func startMockActivity(followed provider: @escaping () -> Set<SpotLocation.ID>) {
+        activityTimer?.invalidate()
+        activityTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.activateRandom(provider())
+        }
+    }
+
+    private func activateRandom(_ followed: Set<SpotLocation.ID>) {
+        guard !followed.isEmpty else { return }
+        let ids = Array(followed).shuffled().prefix(2)
+        for id in ids {
+            activeSpots.insert(id)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in
+                self?.activeSpots.remove(id)
+            }
+        }
+    }
+
+    func hasActiveFollowedSpots(_ followed: Set<SpotLocation.ID>) -> Bool {
+        !activeSpots.intersection(followed).isEmpty
     }
 }

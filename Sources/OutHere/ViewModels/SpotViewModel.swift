@@ -10,6 +10,15 @@ final class SpotViewModel: ObservableObject {
     @Published var selectedSpot: SpotLocation?
     @Published var afternoonOnly: Bool = false
 
+    @AppStorage("dataMode") private var dataModeRaw: String = DataMode.synthetic.rawValue
+    @Published var dataMode: DataMode = .synthetic {
+        didSet {
+            dataModeRaw = dataMode.rawValue
+            loadSpots()
+            loadEvents()
+        }
+    }
+
     // Presence count per spot id
     @Published private(set) var presenceCounts: [SpotLocation.ID: Int] = [:]
     @Published private(set) var mockUsers: [SpotLocation.ID: [MockUser]] = [:]
@@ -21,7 +30,9 @@ final class SpotViewModel: ObservableObject {
     private var activityTimer: Timer?
 
     init() {
-        setupFirebase()
+        self.dataMode = DataMode(rawValue: dataModeRaw) ?? .synthetic
+        loadSpots()
+        loadEvents()
     }
 
     var filteredSpots: [SpotLocation] {
@@ -66,17 +77,44 @@ final class SpotViewModel: ObservableObject {
         !activeSpots.intersection(followed).isEmpty
     }
 
-    private func setupFirebase() {
+    func loadSpots() {
+        if dataMode == .synthetic {
 #if canImport(FirebaseFirestore)
+            spotsListener?.remove()
+            spotsListener = nil
+            for listener in presenceListeners.values { listener.remove() }
+            presenceListeners.removeAll()
+#endif
+            spots = SpotLocation.mockData
+            generateMockUsers()
+        } else {
+            fetchSpotsFromFirebase()
+        }
+    }
+
+    func loadEvents() {
+        if dataMode == .synthetic {
+            events = SpotEvent.mockData
+        } else {
+            fetchEventsFromFirebase()
+        }
+    }
+
+    private func fetchSpotsFromFirebase() {
+#if canImport(FirebaseFirestore)
+        spotsListener?.remove()
         spotsListener = FirebaseService.shared.observeSpots { [weak self] spots in
             self?.spots = spots
-            self?.generateMockUsers()
             self?.listenForPresence(spots)
         }
-#else
-        spots = SpotLocation.mockData
-        generateMockUsers()
 #endif
+    }
+
+    private func fetchEventsFromFirebase() {
+#if canImport(FirebaseFirestore)
+        // TODO: Implement real fetch when backend available
+#endif
+        events = SpotEvent.mockData
     }
 
 #if canImport(FirebaseFirestore)

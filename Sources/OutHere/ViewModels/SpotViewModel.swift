@@ -9,8 +9,13 @@ final class SpotViewModel: ObservableObject {
 
     // Presence count per spot id
     @Published private(set) var presenceCounts: [SpotLocation.ID: Int] = [:]
+    @Published private(set) var mockUsers: [SpotLocation.ID: [MockUser]] = [:]
     @Published var activeSpots: Set<SpotLocation.ID> = []
     private var activityTimer: Timer?
+
+    init() {
+        generateMockUsers()
+    }
 
     var filteredSpots: [SpotLocation] {
         if afternoonOnly {
@@ -57,5 +62,29 @@ final class SpotViewModel: ObservableObject {
 
     func hasActiveFollowedSpots(_ followed: Set<SpotLocation.ID>) -> Bool {
         !activeSpots.intersection(followed).isEmpty
+    }
+
+    private func generateMockUsers() {
+        let sampleTags = ["introvert", "extrovert", "gaming", "reading", "coffee", "outdoors"]
+        for spot in spots {
+            let count = Int.random(in: 0...3)
+            var users: [MockUser] = []
+            for _ in 0..<count {
+                let tags = Array(sampleTags.shuffled().prefix(2))
+                users.append(MockUser(tags: tags))
+            }
+            mockUsers[spot.id] = users
+            presenceCounts[spot.id] = users.count
+        }
+    }
+
+    func connectionContext(for spot: SpotLocation, profile: UserProfile) -> ConnectionContext? {
+        let others = mockUsers[spot.id] ?? []
+        guard others.count >= 2 else { return nil }
+        let overlap = others.filter { !Set($0.tags).isDisjoint(with: profile.interests) }
+        guard !overlap.isEmpty else { return nil }
+        if Double.random(in: 0...1) > profile.connectionFrequency.chance { return nil }
+        let shared = Array(Set(overlap.flatMap { $0.tags }).intersection(profile.interests))
+        return ConnectionContext(count: others.count, sharedTags: shared)
     }
 }

@@ -25,6 +25,7 @@ struct ProfileView: View {
                     }
                 }
                 presenceToggle
+                connectionFrequencyPicker
 
                 Text("Interests")
                     .font(.headline)
@@ -55,6 +56,15 @@ struct ProfileView: View {
         Picker("Presence Mode", selection: $profile.presenceMode) {
             ForEach(UserPresence.allCases) { mode in
                 Text(mode.rawValue.capitalized).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    private var connectionFrequencyPicker: some View {
+        Picker("Connection Notices", selection: $profile.connectionFrequency) {
+            ForEach(ConnectionFrequency.allCases) { freq in
+                Text(freq.rawValue.capitalized).tag(freq)
             }
         }
         .pickerStyle(.segmented)

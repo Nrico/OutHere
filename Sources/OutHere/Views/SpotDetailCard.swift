@@ -7,6 +7,7 @@ struct SpotDetailCard: View {
 
     @Binding var presenceMode: UserPresence
     @State private var toastMessage: String?
+    @State private var connectionContext: ConnectionContext?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -66,6 +67,9 @@ struct SpotDetailCard: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        .sheet(item: $connectionContext) { ctx in
+            ConnectionModalView(context: ctx) { connectionContext = nil }
+        }
     }
 
     private func checkInTapped() {
@@ -75,6 +79,10 @@ struct SpotDetailCard: View {
         }
 
         viewModel.checkIn(at: spot, mode: presenceMode)
+
+        if let ctx = viewModel.connectionContext(for: spot, profile: profile) {
+            connectionContext = ctx
+        }
 
         switch presenceMode {
         case .visible:

@@ -35,22 +35,33 @@ struct SpotMapView: View {
     }
 
     var body: some View {
-        Map(coordinateRegion: $region, annotationItems: displayedSpots) { spot in
-            MapAnnotation(coordinate: spot.coordinate) {
-                SpotAnnotationView(
-                    level: viewModel.activityLevel(for: spot),
-                    dimmed: (mode == .all && !matches(spot)) || safety.isMuted(spot.id),
-                    matched: matches(spot)
-                )
-                .onTapGesture {
-                    selectedSpot = spot
-                }
-                .overlay(alignment: .topTrailing) {
-                    if safety.reportCounts[spot.id, default: 0] >= 3 {
-                        Text("⚠️")
-                            .font(.caption)
+        ZStack(alignment: .topLeading) {
+            Map(coordinateRegion: $region, annotationItems: displayedSpots) { spot in
+                MapAnnotation(coordinate: spot.coordinate) {
+                    SpotAnnotationView(
+                        level: viewModel.activityLevel(for: spot),
+                        dimmed: (mode == .all && !matches(spot)) || safety.isMuted(spot.id),
+                        matched: matches(spot)
+                    )
+                    .onTapGesture {
+                        selectedSpot = spot
+                    }
+                    .overlay(alignment: .topTrailing) {
+                        if safety.reportCounts[spot.id, default: 0] >= 3 {
+                            Text("⚠️")
+                                .font(.caption)
+                        }
                     }
                 }
+            }
+
+            if viewModel.dataMode == .synthetic {
+                Text("Test Data Active")
+                    .font(.caption)
+                    .padding(4)
+                    .background(Color.yellow)
+                    .cornerRadius(6)
+                    .padding([.top, .leading])
             }
         }
     }

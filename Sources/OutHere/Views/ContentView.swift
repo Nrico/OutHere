@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var showFollowed = false
     @State private var showEvents = false
     @State private var showStandBy = false
+    @State private var showSettings = false
     @State private var softNotice: String?
 
     var body: some View {
@@ -101,6 +102,9 @@ struct ContentView: View {
                 .environmentObject(profile)
                 .environmentObject(safety)
         }
+        .sheet(isPresented: $showSettings) {
+            NavigationStack { SettingsView(viewModel: viewModel) }
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: { showEvents = true }) {
@@ -117,6 +121,11 @@ struct ContentView: View {
                             .fill(Color.red)
                             .frame(width: 8, height: 8)
                     }
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gear")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {

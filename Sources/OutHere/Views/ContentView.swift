@@ -20,6 +20,7 @@ struct ContentView: View {
                 SpotMapView(spots: viewModel.filteredSpots, mode: mapMode, selectedSpot: $viewModel.selectedSpot)
                     .environmentObject(viewModel)
                     .environmentObject(profile)
+                    .environmentObject(safety)
                     .edgesIgnoringSafeArea(.all)
 
             VStack {
@@ -68,31 +69,37 @@ struct ContentView: View {
         .sheet(item: $viewModel.selectedSpot) { spot in
             SpotDetailCard(spot: spot, presenceMode: $profile.presenceMode)
                 .environmentObject(profile)
+                .environmentObject(safety)
         }
         .sheet(isPresented: $showProfile) {
             NavigationStack {
                 ProfileView(editAction: { showOnboarding = true })
                     .environmentObject(profile)
+                    .environmentObject(safety)
             }
         }
         .sheet(isPresented: $showOnboarding) {
             OnboardingView()
                 .environmentObject(profile)
+                .environmentObject(safety)
         }
         .sheet(isPresented: $showFollowed) {
             NavigationStack { FollowedSpotsView() }
                 .environmentObject(viewModel)
                 .environmentObject(profile)
+                .environmentObject(safety)
         }
         .sheet(isPresented: $showEvents) {
             NavigationStack { EventBoardView() }
                 .environmentObject(viewModel)
                 .environmentObject(profile)
+                .environmentObject(safety)
         }
         .fullScreenCover(isPresented: $showStandBy) {
             StandByView()
                 .environmentObject(viewModel)
                 .environmentObject(profile)
+                .environmentObject(safety)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

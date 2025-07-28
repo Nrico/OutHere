@@ -2,8 +2,10 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var profile: UserProfile
+    @EnvironmentObject var safety: SafetyViewModel
     @Environment(\.dismiss) private var dismiss
     var editAction: (() -> Void)? = nil
+    @State private var showSafety = false
 
     var body: some View {
         ScrollView {
@@ -27,6 +29,9 @@ struct ProfileView: View {
                 presenceToggle
                 connectionFrequencyPicker
 
+                Button("Safety Options") { showSafety = true }
+                    .buttonStyle(.bordered)
+
                 Text("Interests")
                     .font(.headline)
                 interestTags
@@ -37,6 +42,10 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } } }
+        .sheet(isPresented: $showSafety) {
+            SafetyOptionsView(id: UUID(), name: "profile")
+                .environmentObject(safety)
+        }
     }
 
     private var interestTags: some View {

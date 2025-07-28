@@ -3,6 +3,7 @@ import SwiftUI
 struct EventBoardView: View {
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
+    @EnvironmentObject var safety: SafetyViewModel
     @Environment(\.dismiss) private var dismiss
 
     @State private var interested: Set<SpotEvent.ID> = []
@@ -16,6 +17,7 @@ struct EventBoardView: View {
         if onlyFollowed {
             list = list.filter { profile.followedSpots.contains($0.spotID) }
         }
+        list = list.filter { !safety.isBlocked($0.spotID) && !safety.isBlocked($0.id) }
         return list.sorted { $0.date < $1.date }
     }
 
@@ -26,6 +28,7 @@ struct EventBoardView: View {
                     .padding([.horizontal, .top])
                 ForEach(displayedEvents) { event in
                     EventCardView(event: event, interested: $interested)
+                        .environmentObject(safety)
                         .padding(.horizontal)
                 }
             }
@@ -39,6 +42,8 @@ struct EventCardView: View {
     var event: SpotEvent
     @Binding var interested: Set<SpotEvent.ID>
     var showButton: Bool = true
+    @EnvironmentObject var safety: SafetyViewModel
+    @State private var showSafety = false
 
     private var isInterested: Bool { interested.contains(event.id) }
 
@@ -70,10 +75,17 @@ struct EventCardView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
+                Button("Safety Options") { showSafety = true }
+                    .buttonStyle(.bordered)
             }
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
+        .opacity(safety.isMuted(event.id) ? 0.5 : 1)
+        .sheet(isPresented: $showSafety) {
+            SafetyOptionsView(id: event.id, name: "event")
+                .environmentObject(safety)
+        }
     }
 }
 

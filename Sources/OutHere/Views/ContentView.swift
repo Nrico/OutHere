@@ -9,6 +9,7 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .top) {
             SpotMapView(spots: viewModel.filteredSpots, selectedSpot: $viewModel.selectedSpot)
+                .environmentObject(viewModel)
                 .edgesIgnoringSafeArea(.all)
 
             VStack {

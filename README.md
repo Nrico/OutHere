@@ -7,10 +7,10 @@ This project is a Swift Package so that it can be opened in Xcode and built for 
 ## Features
 - MapKit-based map view
 - Search bar and filter icon overlay
-- Mock data of spots with glowing activity indicators
+- Real-time Firestore spots with glowing activity indicators
 - Sliding translucent card with spot information and quick actions
 
-The app uses a simple MVVM structure and contains only local test data. It is intended as a lightweight prototype without external dependencies.
+The app uses a simple MVVM structure. It now integrates with **Firebase** for real‑time spot and presence syncing across devices.
 
 ## Updates
 - New `SpotLocation` model with activity levels
@@ -19,3 +19,4 @@ The app uses a simple MVVM structure and contains only local test data. It is in
 - Soft connection modal surfaces nearby users with shared tags
 - Experimental StandBy view showing glowing activity at followed spots
 - Safety options to report, block, mute or set safe hours
+- Firebase-backed spot and presence syncing across devices

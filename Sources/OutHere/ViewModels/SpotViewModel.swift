@@ -1,8 +1,11 @@
 import SwiftUI
 import MapKit
+#if canImport(FirebaseFirestore)
+import FirebaseFirestore
+#endif
 
 final class SpotViewModel: ObservableObject {
-    @Published var spots: [SpotLocation] = SpotLocation.mockData
+    @Published var spots: [SpotLocation] = []
     @Published var events: [SpotEvent] = SpotEvent.mockData
     @Published var selectedSpot: SpotLocation?
     @Published var afternoonOnly: Bool = false
@@ -10,11 +13,15 @@ final class SpotViewModel: ObservableObject {
     // Presence count per spot id
     @Published private(set) var presenceCounts: [SpotLocation.ID: Int] = [:]
     @Published private(set) var mockUsers: [SpotLocation.ID: [MockUser]] = [:]
+    #if canImport(FirebaseFirestore)
+    private var presenceListeners: [SpotLocation.ID: ListenerRegistration] = [:]
+    private var spotsListener: ListenerRegistration?
+    #endif
     @Published var activeSpots: Set<SpotLocation.ID> = []
     private var activityTimer: Timer?
 
     init() {
-        generateMockUsers()
+        setupFirebase()
     }
 
     var filteredSpots: [SpotLocation] {
@@ -25,21 +32,15 @@ final class SpotViewModel: ObservableObject {
     }
 
     func activityLevel(for spot: SpotLocation) -> Int {
-        let base = spot.activityLevel
+        let base = spot.popularityLevel
         let additional = presenceCounts[spot.id, default: 0]
         return min(base + additional, 5)
     }
 
-    func checkIn(at spot: SpotLocation, mode: UserPresence, safety: SafetyViewModel? = nil) {
+    func checkIn(at spot: SpotLocation, mode: UserPresence, safety: SafetyViewModel? = nil, profile: UserProfile? = nil) {
         guard mode != .invisible else { return }
         if safety?.isWithinSafeHours() == true { return }
-        presenceCounts[spot.id, default: 0] += 1
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 600) { [weak self] in
-            guard let self else { return }
-            let current = self.presenceCounts[spot.id, default: 0]
-            self.presenceCounts[spot.id] = max(current - 1, 0)
-        }
+        FirebaseService.shared.checkIn(userID: FirebaseService.shared.userID, spotID: spot.id.uuidString, mode: mode)
     }
 
     func startMockActivity(followed provider: @escaping () -> Set<SpotLocation.ID>) {
@@ -64,6 +65,33 @@ final class SpotViewModel: ObservableObject {
     func hasActiveFollowedSpots(_ followed: Set<SpotLocation.ID>) -> Bool {
         !activeSpots.intersection(followed).isEmpty
     }
+
+    private func setupFirebase() {
+#if canImport(FirebaseFirestore)
+        spotsListener = FirebaseService.shared.observeSpots { [weak self] spots in
+            self?.spots = spots
+            self?.generateMockUsers()
+            self?.listenForPresence(spots)
+        }
+#else
+        spots = SpotLocation.mockData
+        generateMockUsers()
+#endif
+    }
+
+#if canImport(FirebaseFirestore)
+    private func listenForPresence(_ spots: [SpotLocation]) {
+        // remove existing listeners
+        for listener in presenceListeners.values { listener.remove() }
+        presenceListeners.removeAll()
+        for spot in spots {
+            let registration = FirebaseService.shared.observePresence(for: spot.id.uuidString) { [weak self] count in
+                self?.presenceCounts[spot.id] = count
+            }
+            presenceListeners[spot.id] = registration
+        }
+    }
+#endif
 
     private func generateMockUsers() {
         let sampleTags = ["introvert", "extrovert", "gaming", "reading", "coffee", "outdoors"]

@@ -4,6 +4,7 @@ import MapKit
 struct SpotMapView: View {
     var spots: [SpotLocation]
     @Binding var selectedSpot: SpotLocation?
+    @EnvironmentObject var viewModel: SpotViewModel
 
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
@@ -13,7 +14,7 @@ struct SpotMapView: View {
     var body: some View {
         Map(coordinateRegion: $region, annotationItems: spots) { spot in
             MapAnnotation(coordinate: spot.coordinate) {
-                SpotAnnotationView(level: spot.activityLevel)
+                SpotAnnotationView(level: viewModel.activityLevel(for: spot))
                     .onTapGesture {
                         selectedSpot = spot
                     }

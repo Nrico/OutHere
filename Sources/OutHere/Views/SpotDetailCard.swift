@@ -2,9 +2,20 @@ import SwiftUI
 
 struct SpotDetailCard: View {
     var spot: SpotLocation
+    @EnvironmentObject var viewModel: SpotViewModel
+
+    @AppStorage("presenceMode") private var presenceMode: UserPresence = .anonymous
+    @State private var toastMessage: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Picker("Presence", selection: $presenceMode) {
+                ForEach(UserPresence.allCases) { mode in
+                    Text(mode.rawValue.capitalized).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+
             Capsule()
                 .fill(Color.secondary)
                 .frame(width: 40, height: 5)
@@ -26,8 +37,10 @@ struct SpotDetailCard: View {
             }
 
             HStack {
-                Button("I’m here now") {}
-                    .buttonStyle(.borderedProminent)
+                Button("I’m here now") {
+                    checkInTapped()
+                }
+                .buttonStyle(.borderedProminent)
                 Button("Follow") {}
                     .buttonStyle(.bordered)
                 Button("Wave") {}
@@ -38,9 +51,49 @@ struct SpotDetailCard: View {
         .background(.thinMaterial)
         .cornerRadius(20)
         .padding()
+        .overlay(alignment: .top) {
+            if let toastMessage {
+                Text(toastMessage)
+                    .font(.footnote)
+                    .padding(8)
+                    .background(Color.black.opacity(0.7))
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    .padding()
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+    }
+
+    private func checkInTapped() {
+        if presenceMode == .invisible {
+            showToast("Switch to visible or anonymous to check in")
+            return
+        }
+
+        viewModel.checkIn(at: spot, mode: presenceMode)
+
+        switch presenceMode {
+        case .visible:
+            showToast("You’ve checked in visibly at \(spot.name)")
+        case .anonymous:
+            showToast("You’ve checked in anonymously")
+        case .invisible:
+            break
+        }
+    }
+
+    private func showToast(_ message: String) {
+        toastMessage = message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                toastMessage = nil
+            }
+        }
     }
 }
 
 #Preview {
     SpotDetailCard(spot: .mockData.first!)
+        .environmentObject(SpotViewModel())
 }

@@ -3,8 +3,9 @@ import SwiftUI
 struct SpotDetailCard: View {
     var spot: SpotLocation
     @EnvironmentObject var viewModel: SpotViewModel
+    @EnvironmentObject var profile: UserProfile
 
-    @AppStorage("presenceMode") private var presenceMode: UserPresence = .anonymous
+    @Binding var presenceMode: UserPresence
     @State private var toastMessage: String?
 
     var body: some View {
@@ -41,8 +42,10 @@ struct SpotDetailCard: View {
                     checkInTapped()
                 }
                 .buttonStyle(.borderedProminent)
-                Button("Follow") {}
-                    .buttonStyle(.bordered)
+                Button(profile.followedSpots.contains(spot.id) ? "Unfollow" : "Follow") {
+                    toggleFollow()
+                }
+                .buttonStyle(.bordered)
                 Button("Wave") {}
                     .buttonStyle(.bordered)
             }
@@ -91,9 +94,18 @@ struct SpotDetailCard: View {
             }
         }
     }
+
+    private func toggleFollow() {
+        if profile.followedSpots.contains(spot.id) {
+            profile.followedSpots.remove(spot.id)
+        } else {
+            profile.followedSpots.insert(spot.id)
+        }
+    }
 }
 
 #Preview {
-    SpotDetailCard(spot: .mockData.first!)
+    SpotDetailCard(spot: .mockData.first!, presenceMode: .constant(.anonymous))
         .environmentObject(SpotViewModel())
+        .environmentObject(UserProfile())
 }

@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var showProfile = false
     @State private var showOnboarding = false
     @State private var showFollowed = false
+    @State private var showEvents = false
     @State private var softNotice: String?
 
     var body: some View {
@@ -82,7 +83,17 @@ struct ContentView: View {
                 .environmentObject(viewModel)
                 .environmentObject(profile)
         }
+        .sheet(isPresented: $showEvents) {
+            NavigationStack { EventBoardView() }
+                .environmentObject(viewModel)
+                .environmentObject(profile)
+        }
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { showEvents = true }) {
+                    Text("📅")
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showFollowed = true }) {
                     Image(systemName: "bell")

@@ -5,6 +5,11 @@ struct SpotCardView: View {
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
     @State private var toast: String?
+    @State private var showEventDetail = false
+
+    private var spotEvent: SpotEvent? {
+        viewModel.events.first { $0.spotID == spot.id }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -38,6 +43,11 @@ struct SpotCardView: View {
                 }
                 .buttonStyle(.bordered)
             }
+            if let event = spotEvent {
+                Divider()
+                EventCardView(event: event, interested: .constant([]), showButton: false)
+                    .onTapGesture { showEventDetail = true }
+            }
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
@@ -51,6 +61,11 @@ struct SpotCardView: View {
                     .cornerRadius(6)
                     .padding(4)
                     .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .sheet(isPresented: $showEventDetail) {
+            if let event = spotEvent {
+                SpotEventDetailView(event: event)
             }
         }
     }

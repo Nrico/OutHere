@@ -6,8 +6,10 @@ import PackageDescription
 let package = Package(
     name: "OutHere",
     platforms: [
-        .iOS(.v15),
-        .macOS(.v11)
+        // NavigationStack and other APIs used in the project require iOS 16
+        // and macOS 13 or newer.
+        .iOS(.v16),
+        .macOS(.v13)
     ],
     products: [
         .executable(name: "OutHere", targets: ["OutHere"])

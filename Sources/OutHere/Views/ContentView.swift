@@ -4,6 +4,7 @@ import MapKit
 struct ContentView: View {
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
+    @EnvironmentObject var safety: SafetyViewModel
     @State private var query: String = ""
     @State private var showFilters = false
     @State private var mapMode: MapDisplayMode = .all
@@ -155,4 +156,7 @@ struct ContentView: View {
     ContentView()
         .environmentObject(SpotViewModel())
         .environmentObject(UserProfile())
+}
+
+// Closing ContentView
 }

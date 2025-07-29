@@ -3,6 +3,7 @@ import SwiftUI
 struct FollowedSpotsView: View {
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
 
     private var followed: [SpotLocation] {
@@ -19,14 +20,24 @@ struct FollowedSpotsView: View {
             .padding()
         }
         .navigationTitle("Followed Spots")
-        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } } }
+        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } } }
     }
 }
 
 #Preview {
-    NavigationStack {
+    NavigationContainer {
         FollowedSpotsView()
             .environmentObject(SpotViewModel())
             .environmentObject(UserProfile())
+    }
+}
+
+private extension FollowedSpotsView {
+    func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
     }
 }

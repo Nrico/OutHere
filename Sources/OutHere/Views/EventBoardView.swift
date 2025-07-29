@@ -4,6 +4,7 @@ struct EventBoardView: View {
     @EnvironmentObject var viewModel: SpotViewModel
     @EnvironmentObject var profile: UserProfile
     @EnvironmentObject var safety: SafetyViewModel
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
 
     @State private var interested: Set<SpotEvent.ID> = []
@@ -34,7 +35,15 @@ struct EventBoardView: View {
             }
         }
         .navigationTitle("Events")
-        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } } }
+        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } } }
+    }
+
+    private func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
     }
 }
 
@@ -121,7 +130,7 @@ struct SpotEventDetailView: View {
 }
 
 #Preview {
-    NavigationStack {
+    NavigationContainer {
         EventBoardView()
             .environmentObject(SpotViewModel())
             .environmentObject(UserProfile())

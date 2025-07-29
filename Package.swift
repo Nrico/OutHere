@@ -19,8 +19,7 @@ let package = Package(
             name: "OutHere",
             dependencies: [
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
-                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
-                .product(name: "FirebaseCore", package: "firebase-ios-sdk")
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk")
             ],
             path: "Sources"
         )

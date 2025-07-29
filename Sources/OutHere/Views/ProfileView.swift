@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var profile: UserProfile
     @EnvironmentObject var safety: SafetyViewModel
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
     var editAction: (() -> Void)? = nil
     @State private var showSafety = false
@@ -41,7 +42,7 @@ struct ProfileView: View {
             .padding()
         }
         .navigationTitle("Profile")
-        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } } }
+        .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } } }
         .sheet(isPresented: $showSafety) {
             SafetyOptionsView(id: UUID(), name: "profile")
                 .environmentObject(safety)
@@ -78,9 +79,19 @@ struct ProfileView: View {
         }
         .pickerStyle(.segmented)
     }
-}
+} 
 
 #Preview {
-    NavigationStack { ProfileView() }
+    NavigationContainer { ProfileView() }
         .environmentObject(UserProfile())
+}
+
+private extension ProfileView {
+    func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
 }

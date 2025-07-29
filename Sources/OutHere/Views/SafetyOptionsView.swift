@@ -4,30 +4,31 @@ struct SafetyOptionsView: View {
     var id: UUID
     var name: String
     @EnvironmentObject var safety: SafetyViewModel
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
     @State private var showReport = false
     @State private var showSafeHours = false
 
     var body: some View {
-        NavigationStack {
+        NavigationContainer {
             List {
                 Button("Report this \(name)") { showReport = true }
                 Button("Block this spot") {
                     safety.block(id)
-                    dismiss()
+                    close()
                 }
                 Button("Mute for 30 days") {
                     safety.mute(id)
-                    dismiss()
+                    close()
                 }
                 Button("Set my safe hours") { showSafeHours = true }
             }
             .navigationTitle("Safety Options")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } }
             }
             .sheet(isPresented: $showReport) {
-                ReportContentView(contentID: id, done: { dismiss() })
+                ReportContentView(contentID: id, done: { close() })
                     .environmentObject(safety)
             }
             .sheet(isPresented: $showSafeHours) {
@@ -36,16 +37,25 @@ struct SafetyOptionsView: View {
             }
         }
     }
+
+    private func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
 }
 
 struct SafeHoursView: View {
     @EnvironmentObject var safety: SafetyViewModel
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
     @State private var startHour: Int = 22
     @State private var endHour: Int = 6
 
     var body: some View {
-        NavigationStack {
+        NavigationContainer {
             Form {
                 Picker("Start", selection: $startHour) {
                     ForEach(0..<24) { Text("\($0):00").tag($0) }
@@ -55,13 +65,21 @@ struct SafeHoursView: View {
                 }
                 Button("Add Range") {
                     safety.settings.safeHours.append(startHour...endHour)
-                    dismiss()
+                    close()
                 }
             }
             .navigationTitle("Safe Hours")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } }
             }
+        }
+    }
+
+    private func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
         }
     }
 }
@@ -70,6 +88,7 @@ struct ReportContentView: View {
     var contentID: UUID
     var done: () -> Void
     @EnvironmentObject var safety: SafetyViewModel
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
     @State private var reason: String = "Inappropriate content"
     @State private var details: String = ""
@@ -77,7 +96,7 @@ struct ReportContentView: View {
     @State private var showThanks = false
 
     var body: some View {
-        NavigationStack {
+        NavigationContainer {
             Form {
                 Picker("Reason", selection: $reason) {
                     ForEach(reasons, id: \.self) { Text($0) }
@@ -91,14 +110,22 @@ struct ReportContentView: View {
             }
             .navigationTitle("Report Content")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } }
             }
             .alert("Thanks for helping keep the community safe. Respect others!", isPresented: $showThanks) {
                 Button("OK") {
                     done()
-                    dismiss()
+                    close()
                 }
             }
+        }
+    }
+
+    private func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
         }
     }
 }

@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var softNotice: String?
 
     var body: some View {
-        NavigationStack {
+        NavigationContainer {
             ZStack(alignment: .top) {
                 SpotMapView(spots: viewModel.filteredSpots, mode: mapMode, selectedSpot: $viewModel.selectedSpot)
                     .environmentObject(viewModel)
@@ -73,7 +73,7 @@ struct ContentView: View {
                 .environmentObject(safety)
         }
         .sheet(isPresented: $showProfile) {
-            NavigationStack {
+            NavigationContainer {
                 ProfileView(editAction: { showOnboarding = true })
                     .environmentObject(profile)
                     .environmentObject(safety)
@@ -85,13 +85,13 @@ struct ContentView: View {
                 .environmentObject(safety)
         }
         .sheet(isPresented: $showFollowed) {
-            NavigationStack { FollowedSpotsView() }
+            NavigationContainer { FollowedSpotsView() }
                 .environmentObject(viewModel)
                 .environmentObject(profile)
                 .environmentObject(safety)
         }
         .sheet(isPresented: $showEvents) {
-            NavigationStack { EventBoardView() }
+            NavigationContainer { EventBoardView() }
                 .environmentObject(viewModel)
                 .environmentObject(profile)
                 .environmentObject(safety)
@@ -103,7 +103,7 @@ struct ContentView: View {
                 .environmentObject(safety)
         }
         .sheet(isPresented: $showSettings) {
-            NavigationStack { SettingsView(viewModel: viewModel) }
+            NavigationContainer { SettingsView(viewModel: viewModel) }
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

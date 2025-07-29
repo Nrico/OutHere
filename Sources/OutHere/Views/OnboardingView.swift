@@ -2,10 +2,11 @@ import SwiftUI
 
 struct OnboardingView: View {
     @EnvironmentObject var profile: UserProfile
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
+        NavigationContainer {
             Form {
                 Section {
                     Text("Please respect others and keep content safe for everyone.")
@@ -24,11 +25,21 @@ struct OnboardingView: View {
                 }
             }
             .navigationTitle("Edit Profile")
-            .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .navigationBarTrailing) { Button("Done") { close() } } }
         }
     }
 }
 
 #Preview {
-    OnboardingView().environmentObject(UserProfile())
+    NavigationContainer { OnboardingView().environmentObject(UserProfile()) }
+}
+
+private extension OnboardingView {
+    func close() {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            dismiss()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
 }

@@ -18,6 +18,26 @@ struct SpotLocation: Identifiable, Hashable {
 }
 
 extension SpotLocation {
+    static func == (lhs: SpotLocation, rhs: SpotLocation) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.name == rhs.name &&
+        lhs.coordinate.latitude == rhs.coordinate.latitude &&
+        lhs.coordinate.longitude == rhs.coordinate.longitude &&
+        lhs.tags == rhs.tags &&
+        lhs.popularityLevel == rhs.popularityLevel
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+        hasher.combine(coordinate.latitude)
+        hasher.combine(coordinate.longitude)
+        hasher.combine(tags)
+        hasher.combine(popularityLevel)
+    }
+}
+
+extension SpotLocation {
     static let mockData: [SpotLocation] = [
         SpotLocation(
             name: "Rainbow Cafe",
